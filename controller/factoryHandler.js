@@ -24,9 +24,7 @@ exports.updateOne = (Model) =>
 
     res.status(200).json({
       status: 'success',
-      data: {
-        data: doc,
-      },
+      data: doc,
     });
   });
 
@@ -36,9 +34,7 @@ exports.createOne = (Model) =>
 
     res.status(201).json({
       status: 'success',
-      data: {
-        data: doc,
-      },
+      data: doc,
     });
   });
 
@@ -50,7 +46,7 @@ exports.getOne = (Model, popOpt) =>
     if (!doc) return next(new AppError(404, 'No doc found (invalid ID)'));
     res.status(200).json({
       status: 'success',
-      data: { data: doc },
+      data: doc,
     });
   });
 

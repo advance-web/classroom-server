@@ -1,5 +1,4 @@
 // const crypto = require('crypto');
-const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
@@ -9,6 +8,7 @@ const AppError = require('../utils/AppError');
 const { appConfig } = require('../utils/appConfig');
 const Email = require('../utils/email');
 // const Email = require('../utils/email');
+const passportJWT = require('../lib/passport');
 const passport = require('../utils/passport');
 const passportGoogle = require('../utils/passportGoogle');
 
@@ -133,40 +133,13 @@ exports.logout = (req, res) => {
 //Neu dang nhap roi thi luu user vao req
 //Chua thi tra ve loi middleware
 exports.protect = catchAsync(async (req, res, next) => {
-  //Get token from header or cookies
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-  }
-  console.log(token);
-
-  if (!token) {
-    return next(new AppError(401, 'Please log in to access this feature'));
-  }
-
-  //Verify token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  //Check user
-  const freshUser = await User.findById(decoded.id);
-
-  if (!freshUser) {
-    return next(new AppError(401, 'User not exist'));
-  }
-
-  //Check change pass after get the token
-  // if (freshUser.changedPasswordAfter(decoded.iat)) {
-  //   return next(
-  //     new AppError(401, 'User has changed password! Please log in again')
-  //   );
-  // }
-  req.user = freshUser;
-  next();
+  passportJWT.authenticate('jwt', (err, user) => {
+    if (err) return next(err);
+    if (!user)
+      return next(new AppError(401, 'Please log in to access this feature'));
+    req.user = user;
+    next();
+  })(req, res, next);
 });
 
 exports.restrictTo =
