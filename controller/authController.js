@@ -10,6 +10,7 @@ const { appConfig } = require('../utils/appConfig');
 const Email = require('../utils/email');
 // const Email = require('../utils/email');
 const passport = require('../utils/passport');
+const passportGoogle = require('../utils/passportGoogle');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -238,3 +239,31 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.password = req.body.password;
   await user.save();
 });
+
+exports.googleLogin = (req, res, next) => {
+  const expiresDate = new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  );
+
+  const cookieOptions = {
+    expires: expiresDate,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+  };
+
+  console.log('User: ', req.user);
+
+  passportGoogle.authenticate('google', { session: false }, (err, user) => {
+    console.log('User: ', user);
+    if (err || !user) {
+      return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
+    }
+
+    req.login(user, { session: false }, () => {
+      const token = signToken(user.id);
+      res.cookie('jwt', token, cookieOptions);
+      res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
+    });
+  })(req, res, next);
+};
