@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
+const { appConfig } = require('../utils/appConfig');
 const Email = require('../utils/email');
 
 const signToken = (id) =>
@@ -65,7 +66,16 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.verify = catchAsync(async (req, res, next) => {
   // eslint-disable-next-line prefer-destructuring
   const token = req.query.token;
-  console.log(req.query.token);
+  console.log('token: ', token);
+  const expiresDate = new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  );
+  const cookieOptions = {
+    expires: expiresDate,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+  };
 
   if (!token) {
     return res.status(400).send('Token is missing.');
@@ -76,6 +86,12 @@ exports.verify = catchAsync(async (req, res, next) => {
   if (!user) {
     return res.status(404).send('User not found.');
   }
+
+  let tokenLocalStorage = signToken(user.id);
+  if (req.cookies.jwt) {
+    tokenLocalStorage = req.cookies.jwt;
+  }
+  res.cookie('jwt', tokenLocalStorage, cookieOptions);
 
   user.verify = true;
   await user.save();

@@ -38,6 +38,7 @@ const sendErrorDev = function (err, req, res) {
     return res.status(500).json({
       status: 'Error',
       message: 'Some thing wrong happen',
+      error: err,
     });
   }
 };
