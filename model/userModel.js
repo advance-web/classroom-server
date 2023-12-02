@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: true,
       trim: true,
       unique: true,
       validate: [validator.isEmail, 'Please insert valid email'],
@@ -14,7 +13,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 8,
       select: false,
     },
@@ -33,11 +31,9 @@ const userSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
     },
     phone: {
       type: String,
-      required: [true, 'Please give phone number'],
       validate: [validator.isMobilePhone, 'Please insert valid phone number'],
     },
     verifyToken: {

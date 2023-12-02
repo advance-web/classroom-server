@@ -8,6 +8,8 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const { appConfig } = require('../utils/appConfig');
 const Email = require('../utils/email');
+// const Email = require('../utils/email');
+const passport = require('../utils/passport');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -176,6 +178,30 @@ exports.restrictTo =
     }
     next();
   };
+
+exports.faceboookLogin = (req, res, next) => {
+  const expiresDate = new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  );
+
+  const cookieOptions = {
+    expires: expiresDate,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+  };
+  passport.authenticate('facebook', { session: false }, (err, user) => {
+    // Decide what to do on authentication
+    if (err || !user) {
+      return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
+    }
+    req.login(user, { session: false }, () => {
+      const token = signToken(user.id);
+      res.cookie('jwt', token, cookieOptions);
+      res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
+    });
+  })(req, res, next);
+};
 
 exports.acceptSendEmail = catchAsync(async (req, res, next) => {
   const { email } = req.body;
