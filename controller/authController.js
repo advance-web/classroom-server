@@ -241,6 +241,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.googleLogin = (req, res, next) => {
+  const { user } = req;
+
+  if (!user) {
+    return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
+  }
+
+  const token = signToken(user.id);
+
   const expiresDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
   );
@@ -252,18 +260,10 @@ exports.googleLogin = (req, res, next) => {
     sameSite: 'None',
   };
 
-  console.log('User: ', req.user);
+  res.cookie('jwt', token, cookieOptions);
 
-  passportGoogle.authenticate('google', { session: false }, (err, user) => {
-    console.log('User: ', user);
-    if (err || !user) {
-      return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
-    }
+  console.log('User id:', user.id);
 
-    req.login(user, { session: false }, () => {
-      const token = signToken(user.id);
-      res.cookie('jwt', token, cookieOptions);
-      res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
-    });
-  })(req, res, next);
+  // Redirect to the success page with the token
+  res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
 };

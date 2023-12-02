@@ -6,7 +6,7 @@ passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientSecret: process.env.GOOGLE_SECRET,
       callbackURL: 'http://localhost:3000/auth/oauth2/redirect/google',
     },
     (accessToken, refreshToken, profile, done) => {
@@ -15,8 +15,6 @@ passport.use(
           console.log('Profile: ', profile);
           // Extract relevant user information from the profile
           const { id, displayName, emails } = profile;
-
-          console.log('Profile: ', profile);
 
           const existedUser = await User.findOne({ email: emails[0].value });
           if (existedUser) {
@@ -31,7 +29,6 @@ passport.use(
 
           done(null, newUser);
         } catch (err) {
-          console.log('Profile: ', profile);
           return done(null, false, { message: 'Error' });
         }
       });
