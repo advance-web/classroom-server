@@ -5,6 +5,7 @@ const authController = require('../controller/authController');
 
 const router = express.Router();
 
+router.get('/verify', authController.verify);
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
