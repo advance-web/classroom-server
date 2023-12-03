@@ -43,7 +43,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   const { name, email, password, confirmPassword, role, phone, address } =
     req.body;
 
-  const token = crypto.randomBytes(128).toString('hex');
+  const verifyToken = crypto.randomBytes(128).toString('hex');
   const newUser = await User.create({
     name,
     email,
@@ -52,11 +52,11 @@ exports.signup = catchAsync(async (req, res, next) => {
     role,
     address,
     phone,
-    token,
+    verifyToken,
     verify: false,
   });
   try {
-    Email.sendVerificationEmail(newUser, token);
+    Email.sendVerificationEmail(newUser, verifyToken);
     res.send('Verification email sent. Please check your email.');
   } catch (error) {
     console.log('Lỗi: ', error);
@@ -65,8 +65,8 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.verify = catchAsync(async (req, res, next) => {
   // eslint-disable-next-line prefer-destructuring
-  const token = req.query.token;
-  console.log('token: ', token);
+  const verifyToken = req.query.token;
+  console.log('verify token: ', verifyToken);
   const expiresDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
   );
@@ -77,11 +77,11 @@ exports.verify = catchAsync(async (req, res, next) => {
     sameSite: 'None',
   };
 
-  if (!token) {
+  if (!verifyToken) {
     return res.status(400).send('Token is missing.');
   }
 
-  const user = await User.findOne({ token });
+  const user = await User.findOne({ verifyToken });
 
   if (!user) {
     return res.status(404).send('User not found.');
@@ -176,3 +176,39 @@ exports.restrictTo =
     }
     next();
   };
+
+exports.acceptSendEmail = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  // Check for email and password
+  if (!email) {
+    return next(new AppError(400, 'Invalid email or password'));
+  }
+  //Check for user and pass
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.send('Email không tồn tại');
+  } else {
+    Email.acceptSendEmail(user);
+  }
+
+  // send back token
+  // createSendUser(user, 200, res);
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const verifyToken = req.query.token;
+  console.log('verify token: ', verifyToken);
+
+  if (!verifyToken) {
+    return res.status(400).send('Token is missing.');
+  }
+
+  const user = await User.findOne({ verifyToken });
+
+  if (!user) {
+    return res.status(404).send('User not found.');
+  }
+
+  user.password = req.body.password;
+  await user.save();
+});

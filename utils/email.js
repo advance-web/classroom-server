@@ -7,7 +7,7 @@ const clienURL = 'http://localhost:3001';
 
 // Email
 // Send the verification email with the generated token
-exports.sendVerificationEmail = function (user, token) {
+exports.sendVerificationEmail = function (user, verifyToken) {
   const mailjet = Mailjet.apiConnect(
     process.env.MJ_APIKEY_PUBLIC,
     process.env.MJ_APIKEY_PRIVATE
@@ -27,7 +27,41 @@ exports.sendVerificationEmail = function (user, token) {
         ],
         Subject: 'Greetings from Mailjet.',
         TextPart: 'My first Mailjet email',
-        HTMLPart: `<h3>Mời bạn nhấn vào đường link sau để xác nhận email  <a href='${clienURL}/verify?token=${token}'>Mailjet</a>!</h3><br />Chúc bạn một ngày may mắn!`,
+        HTMLPart: `<h3>Mời bạn nhấn vào đường link sau để xác nhận email  <a href='${clienURL}/verify?token=${verifyToken}'>Mailjet</a>!</h3><br />Chúc bạn một ngày may mắn!`,
+        CustomID: 'AppGettingStartedTest',
+      },
+    ],
+  });
+  request
+    .then((result) => {
+      console.log(result.body);
+    })
+    .catch((err) => {
+      console.log(err.statusCode);
+    });
+};
+
+exports.acceptSendEmail = function (user) {
+  const mailjet = Mailjet.apiConnect(
+    process.env.MJ_APIKEY_PUBLIC,
+    process.env.MJ_APIKEY_PRIVATE
+  );
+  const request = mailjet.post('send', { version: 'v3.1' }).request({
+    Messages: [
+      {
+        From: {
+          Email: 'phunganhkhoa123@gmail.com',
+          Name: 'Khoa',
+        },
+        To: [
+          {
+            Email: user.email,
+            Name: user.name,
+          },
+        ],
+        Subject: 'Email xác nhận đổi mật khẩu',
+        TextPart: 'My first Mailjet email',
+        HTMLPart: `<h3>Mời bạn nhấn vào đường link sau để xác nhận đổi mật khẩu  <a href='${clienURL}/reset-password?token=${user.verifyToken}'>Thay đổi password</a>!</h3><br />Chúc bạn một ngày may mắn!`,
         CustomID: 'AppGettingStartedTest',
       },
     ],
