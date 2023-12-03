@@ -1,10 +1,13 @@
 // const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
-// const Email = require('../utils/email');
+const { appConfig } = require('../utils/appConfig');
+const Email = require('../utils/email');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -39,6 +42,8 @@ const createSendUser = (user, statusCode, res) => {
 exports.signup = catchAsync(async (req, res, next) => {
   const { name, email, password, confirmPassword, role, phone, address } =
     req.body;
+
+  const verifyToken = crypto.randomBytes(128).toString('hex');
   const newUser = await User.create({
     name,
     email,
@@ -47,9 +52,51 @@ exports.signup = catchAsync(async (req, res, next) => {
     role,
     address,
     phone,
+    verifyToken,
+    verify: false,
   });
-  //await new Email(newUser, url).sendWelcome();
-  createSendUser(newUser, 201, res);
+  try {
+    Email.sendVerificationEmail(newUser, verifyToken);
+    res.send('Verification email sent. Please check your email.');
+  } catch (error) {
+    console.log('Lỗi: ', error);
+  }
+});
+
+exports.verify = catchAsync(async (req, res, next) => {
+  // eslint-disable-next-line prefer-destructuring
+  const verifyToken = req.query.token;
+  console.log('verify token: ', verifyToken);
+  const expiresDate = new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  );
+  const cookieOptions = {
+    expires: expiresDate,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+  };
+
+  if (!verifyToken) {
+    return res.status(400).send('Token is missing.');
+  }
+
+  const user = await User.findOne({ verifyToken });
+
+  if (!user) {
+    return res.status(404).send('User not found.');
+  }
+
+  let tokenLocalStorage = signToken(user.id);
+  if (req.cookies.jwt) {
+    tokenLocalStorage = req.cookies.jwt;
+  }
+  res.cookie('jwt', tokenLocalStorage, cookieOptions);
+
+  user.verify = true;
+  await user.save();
+
+  createSendUser(user, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -129,3 +176,39 @@ exports.restrictTo =
     }
     next();
   };
+
+exports.acceptSendEmail = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  // Check for email and password
+  if (!email) {
+    return next(new AppError(400, 'Invalid email or password'));
+  }
+  //Check for user and pass
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.send('Email không tồn tại');
+  } else {
+    Email.acceptSendEmail(user);
+  }
+
+  // send back token
+  // createSendUser(user, 200, res);
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const verifyToken = req.query.token;
+  console.log('verify token: ', verifyToken);
+
+  if (!verifyToken) {
+    return res.status(400).send('Token is missing.');
+  }
+
+  const user = await User.findOne({ verifyToken });
+
+  if (!user) {
+    return res.status(404).send('User not found.');
+  }
+
+  user.password = req.body.password;
+  await user.save();
+});

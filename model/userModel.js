@@ -40,6 +40,13 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Please give phone number'],
       validate: [validator.isMobilePhone, 'Please insert valid phone number'],
     },
+    verifyToken: {
+      type: String,
+      unique: true,
+    },
+    verify: {
+      type: Boolean,
+    },
   },
   {
     toJSON: { virtuals: true },
