@@ -2,8 +2,9 @@
 // const { htmlToText } = require('html-to-text');
 // const pug = require('pug');
 const Mailjet = require('node-mailjet');
+const { appConfig } = require('./appConfig');
 
-const clienURL = 'http://localhost:3001';
+const clienURL = appConfig.CLIENT_URL;
 
 // Email
 // Send the verification email with the generated token
