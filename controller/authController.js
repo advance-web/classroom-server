@@ -1,4 +1,3 @@
-// const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
@@ -7,10 +6,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const { appConfig } = require('../utils/appConfig');
 const Email = require('../utils/email');
-// const Email = require('../utils/email');
-const passportJWT = require('../lib/passport');
 const passport = require('../utils/passport');
-const passportGoogle = require('../utils/passportGoogle');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -28,7 +24,6 @@ const createSendUser = (user, statusCode, res) => {
     secure: true,
     sameSite: 'None',
   };
-  // if (process.env.DOT_ENV === 'production') cookieOptions.secure = true;
   res.cookie('jwt', token, cookieOptions);
   user.password = undefined;
 
@@ -60,14 +55,13 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
   try {
     Email.sendVerificationEmail(newUser, verifyToken);
-    res.send('Verification email sent. Please check your email.');
+    createSendUser(newUser, 201, res);
   } catch (error) {
     console.log('Lỗi: ', error);
   }
 });
 
 exports.verify = catchAsync(async (req, res, next) => {
-  // eslint-disable-next-line prefer-destructuring
   const verifyToken = req.query.token;
   console.log('verify token: ', verifyToken);
   const expiresDate = new Date(
@@ -133,7 +127,7 @@ exports.logout = (req, res) => {
 //Neu dang nhap roi thi luu user vao req
 //Chua thi tra ve loi middleware
 exports.protect = catchAsync(async (req, res, next) => {
-  passportJWT.authenticate('jwt', (err, user) => {
+  passport.authenticate('jwt', (err, user) => {
     if (err) return next(err);
     if (!user)
       return next(new AppError(401, 'Please log in to access this feature'));
@@ -154,6 +148,7 @@ exports.restrictTo =
   };
 
 exports.faceboookLogin = (req, res, next) => {
+  const { user } = req;
   const expiresDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
   );
@@ -164,17 +159,12 @@ exports.faceboookLogin = (req, res, next) => {
     secure: true,
     sameSite: 'None',
   };
-  passport.authenticate('facebook', { session: false }, (err, user) => {
-    // Decide what to do on authentication
-    if (err || !user) {
-      return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
-    }
-    req.login(user, { session: false }, () => {
-      const token = signToken(user.id);
-      res.cookie('jwt', token, cookieOptions);
-      res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
-    });
-  })(req, res, next);
+  if (!user) {
+    return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
+  }
+  const token = signToken(user.id);
+  res.cookie('jwt', token, cookieOptions);
+  res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
 };
 
 exports.acceptSendEmail = catchAsync(async (req, res, next) => {
@@ -186,31 +176,29 @@ exports.acceptSendEmail = catchAsync(async (req, res, next) => {
   //Check for user and pass
   const user = await User.findOne({ email });
   if (!user) {
-    res.send('Email không tồn tại');
-  } else {
-    Email.acceptSendEmail(user);
+    return next(new AppError(404, 'Email not exsist in our system'));
   }
-
-  // send back token
-  // createSendUser(user, 200, res);
+  Email.acceptSendEmail(user);
+  res.status(200).json({
+    status: 'success',
+  });
 });
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const verifyToken = req.query.token;
-  console.log('verify token: ', verifyToken);
-
   if (!verifyToken) {
-    return res.status(400).send('Token is missing.');
+    return next(new AppError(400, 'Invalid token'));
   }
 
   const user = await User.findOne({ verifyToken });
-
   if (!user) {
-    return res.status(404).send('User not found.');
+    return next(new AppError(400, 'User not found'));
   }
 
   user.password = req.body.password;
   await user.save();
+
+  createSendUser(user, 200, res);
 });
 
 exports.googleLogin = (req, res, next) => {
@@ -234,8 +222,6 @@ exports.googleLogin = (req, res, next) => {
   };
 
   res.cookie('jwt', token, cookieOptions);
-
-  console.log('User id:', user.id);
 
   // Redirect to the success page with the token
   res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);

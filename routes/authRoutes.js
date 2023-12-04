@@ -1,7 +1,6 @@
 const express = require('express');
 
 const passport = require('../utils/passport');
-const passportGoogle = require('../utils/passportGoogle');
 const authController = require('../controller/authController');
 
 const router = express.Router();
@@ -10,15 +9,22 @@ router.get(
   '/login/facebook',
   passport.authenticate('facebook', { scope: ['email'] })
 );
-router.get('/oauth2/redirect/facebook', authController.faceboookLogin);
+router.get(
+  '/oauth2/redirect/facebook',
+  passport.authenticate('facebook', {
+    failureRedirect: '/',
+    session: false,
+  }),
+  authController.faceboookLogin
+);
 
 router.get(
   '/login/google',
-  passportGoogle.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 router.get(
   '/oauth2/redirect/google',
-  passportGoogle.authenticate('google', {
+  passport.authenticate('google', {
     failureRedirect: '/',
     session: false,
   }),

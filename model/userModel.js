@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema(
     verify: {
       type: Boolean,
     },
+    provider: {
+      type: String,
+      enum: ['local', 'facebook', 'google'],
+      default: 'local',
+    },
   },
   {
     toJSON: { virtuals: true },

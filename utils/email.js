@@ -16,8 +16,8 @@ exports.sendVerificationEmail = function (user, verifyToken) {
     Messages: [
       {
         From: {
-          Email: 'phunganhkhoa123@gmail.com',
-          Name: 'Khoa',
+          Email: process.env.EMAIL_FROM,
+          Name: 'hcmus-advance-web',
         },
         To: [
           {
@@ -25,8 +25,8 @@ exports.sendVerificationEmail = function (user, verifyToken) {
             Name: user.name,
           },
         ],
-        Subject: 'Greetings from Mailjet.',
-        TextPart: 'My first Mailjet email',
+        Subject: 'Verify your account',
+        TextPart: 'Account verification',
         HTMLPart: `<h3>Mời bạn nhấn vào đường link sau để xác nhận email  <a href='${clienURL}/verify?token=${verifyToken}'>Mailjet</a>!</h3><br />Chúc bạn một ngày may mắn!`,
         CustomID: 'AppGettingStartedTest',
       },
@@ -50,8 +50,8 @@ exports.acceptSendEmail = function (user) {
     Messages: [
       {
         From: {
-          Email: 'phunganhkhoa123@gmail.com',
-          Name: 'Khoa',
+          Email: process.env.EMAIL_FROM,
+          Name: process.env.EMAIL_NAME,
         },
         To: [
           {
