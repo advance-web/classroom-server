@@ -17,6 +17,8 @@ const GlobalErrorHandler = require('./controller/errorController');
 // const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const authRouter = require('./routes/authRoutes');
+const studentRouter = require('./routes/studentRoutes');
+const teacherRouter = require('./routes/teacherRoutes');
 
 const app = express();
 
@@ -83,6 +85,8 @@ app.use((req, res, next) => {
 
 //DEFINE API HERE
 app.use('/api/users', userRouter);
+app.use('/api/students', studentRouter);
+app.use('/api/teachers', teacherRouter);
 app.use('/auth', authRouter);
 
 //Global error handler

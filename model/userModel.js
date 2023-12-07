@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema(
       enum: ['local', 'facebook', 'google'],
       default: 'local',
     },
+    role: {
+      type: String,
+      enum: ['student', 'teacher'],
+      default: 'student',
+    },
   },
   {
     toJSON: { virtuals: true },
