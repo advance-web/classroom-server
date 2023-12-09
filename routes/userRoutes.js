@@ -2,6 +2,7 @@ const express = require('express');
 
 const userController = require('../controller/userController');
 const authController = require('../controller/authController');
+const classroomController = require('../controller/classroomController');
 
 const router = express.Router();
 
@@ -12,6 +13,15 @@ router.get('/logout', authController.logout);
 router.post('/accept-send-email', authController.acceptSendEmail);
 router.post('/reset-password', authController.resetPassword);
 router.get('/reset-password', authController.resetPassword);
+
+router.use(authController.protect, userController.getMe);
+
+router.get(
+  '/me/classrooms',
+  authController.protect,
+  classroomController.getClassroomByUserId
+);
+
 router.get(
   '/me',
   authController.protect,
@@ -24,8 +34,5 @@ router.patch(
   userController.getMe,
   userController.updateUser
 );
-
-router.get('/:id', userController.getUser);
-router.patch('/:id', userController.updateUser);
 
 module.exports = router;
