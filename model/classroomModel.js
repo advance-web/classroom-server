@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const ClassroomParticipantModel = require('./classroomParticipantModel');
+const uIdGenerator = require('../utils/UIDGenerator');
 
 const classroomSchema = new mongoose.Schema(
   {
@@ -21,6 +22,9 @@ const classroomSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Class must belong to a teacher'],
     },
+    joinCode: {
+      type: String,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -28,13 +32,19 @@ const classroomSchema = new mongoose.Schema(
   }
 );
 
-classroomSchema.pre('save', async function () {
+classroomSchema.pre('save', async function (next) {
   if (this.isNew) {
     await ClassroomParticipantModel.create({
       classroom: this.id,
       user: this.teacher,
     });
   }
+  next();
+});
+
+classroomSchema.pre('save', function (next) {
+  this.joinCode = uIdGenerator();
+  next();
 });
 
 module.exports = mongoose.model('Classroom', classroomSchema);
