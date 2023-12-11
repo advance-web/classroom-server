@@ -6,7 +6,6 @@ const AppError = require('../utils/AppError');
 
 exports.getClassroomById = factory.getOne(classroomModel, {
   path: 'teacher',
-  select: ['id', 'name', 'email'],
 });
 exports.createClassroom = factory.createOne(classroomModel);
 
@@ -28,7 +27,10 @@ exports.getClassroomByUserId = catchAsync(async (req, res, next) => {
   const doc = await classroomParticipantModel
     .find({ user: id })
     .select('classroom')
-    .populate({ path: 'classroom' });
+    .populate({
+      path: 'classroom',
+      populate: { path: 'teacher', select: ['email', 'name'] },
+    });
   return res.status(200).json({
     status: 'success',
     data: doc,
