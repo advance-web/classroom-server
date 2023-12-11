@@ -4,6 +4,24 @@ const classroomParticipantModel = require('../model/classroomParticipantModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
+exports.inviteToClassroom = (req, res, next) => {
+  if (req.query.joinCode) {
+    // Create a new URL object using the original URL and base URL
+    const originalUrl = new URL(
+      req.originalUrl,
+      `${req.protocol}://${req.get('host')}`
+    );
+
+    // Construct a redirect URL to the sign-in page with the 'continue' parameter
+    const redirectUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/sign-in?continue=${encodeURIComponent(originalUrl.toString())}`;
+
+    // Redirect the user to the sign-in page
+    return res.redirect(redirectUrl);
+  }
+};
+
 exports.getClassroomById = factory.getOne(classroomModel, {
   path: 'teacher',
 });
