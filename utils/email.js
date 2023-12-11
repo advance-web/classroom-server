@@ -43,7 +43,7 @@ module.exports = class Email {
 
   async sendRegisterationRequest() {
     await this.send(
-      `<h3>Bạn vừa được mời vào lớp học. Đăng ký ngay: <a href='${clienURL}/sign-in'>Đăng ký</a>!</h3><br />Chúc bạn một ngày may mắn!`,
+      `<h3>Bạn vừa được mời vào lớp học. Đăng ký ngay: <a href='${clienURL}/sign-up'>Đăng ký</a>!</h3><br />Chúc bạn một ngày may mắn!`,
       'Hãy đăng ký tài khoản mới để tham gia lớp học'
     );
   }

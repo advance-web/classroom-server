@@ -25,7 +25,7 @@ exports.inviteByEmail = catchAsync(async (req, res, next) => {
   }
 
   // Check user in app ?
-  const inviteUser = await UserModel.findOne({ email });
+  const inviteUser = await UserModel.findOne({ email }, 'id name role email');
 
   // No: Create pending invite, send register request done
   if (!inviteUser) {
@@ -50,6 +50,9 @@ exports.inviteByEmail = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    data: newParticipant,
+    data: {
+      newParticipant,
+      inviteUser,
+    },
   });
 });
