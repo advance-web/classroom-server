@@ -23,6 +23,8 @@ const classroomParticipantSchema = new mongoose.Schema(
   }
 );
 
+classroomParticipantSchema.index({ classroom: 1, user: 1 }, { unique: true });
+
 module.exports = mongoose.model(
   'ClassroomParticipant',
   classroomParticipantSchema

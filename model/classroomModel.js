@@ -28,18 +28,13 @@ const classroomSchema = new mongoose.Schema(
   }
 );
 
-classroomSchema.methods.signTeacherInClass = async function () {
-  try {
-    console.log(this);
+classroomSchema.pre('save', async function () {
+  if (this.isNew) {
     await ClassroomParticipantModel.create({
       classroom: this.id,
-      user: this.teacher.toString(),
+      user: this.teacher,
     });
-  } catch (error) {
-    console.log(this);
-    console.error(error);
   }
-};
-classroomSchema.queue('signTeacherInClass', []);
+});
 
 module.exports = mongoose.model('Classroom', classroomSchema);

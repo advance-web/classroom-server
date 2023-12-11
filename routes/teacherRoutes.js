@@ -14,5 +14,6 @@ router.post(
   teacherController.meCreateClassroom,
   classroomController.createClassroom
 );
+router.post('/classroom-invite', teacherController.inviteByEmail);
 
 module.exports = router;

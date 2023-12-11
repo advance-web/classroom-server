@@ -54,7 +54,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     verify: false,
   });
   try {
-    Email.sendVerificationEmail(newUser, verifyToken);
+    const Sender = new Email({ email, name });
+    await Sender.sendVerificationEmail(verifyToken);
     createSendUser(newUser, 201, res);
   } catch (error) {
     console.log('Lỗi: ', error);
@@ -178,7 +179,8 @@ exports.acceptSendEmail = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError(404, 'Email not exsist in our system'));
   }
-  Email.acceptSendEmail(user);
+  const Sender = new Email({ name: user.name, email: user.email });
+  await Sender.acceptSendEmail(user.verifyToken);
   res.status(200).json({
     status: 'success',
   });

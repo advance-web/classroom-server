@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const ClassroomParticipantModel = require('./classroomParticipantModel');
+const PendingInviteModel = require('./pendingInviteModel');
+const pendingInviteModel = require('./pendingInviteModel');
 
 const userSchema = new mongoose.Schema(
   {
@@ -67,6 +70,28 @@ userSchema.pre('save', async function (next) {
 
   this.confirmPassword = undefined;
   next();
+});
+
+userSchema.pre('save', async function () {
+  if (this.isNew) {
+    const invitations = await PendingInviteModel.find({
+      email: this.email,
+      pending: true,
+    });
+    if (invitations.length) {
+      const queries = invitations.map((invitation) =>
+        ClassroomParticipantModel.create({
+          classroom: invitation.classroom,
+          user: this.id,
+        })
+      );
+      const updatePendingQuery = pendingInviteModel.updateMany(
+        { email: this.email },
+        { $set: { pending: false } }
+      );
+      await Promise.all([...queries, updatePendingQuery]);
+    }
+  }
 });
 
 userSchema.methods.checkPassword = async function (checkPass, curPass) {
