@@ -228,3 +228,13 @@ exports.googleLogin = (req, res, next) => {
   // Redirect to the success page with the token
   res.redirect(`${appConfig.CLIENT_URL}/login-success/${token}`);
 };
+
+exports.sendVerificationEmail = catchAsync(async (req, res, next) => {
+  const { user } = req;
+  console.log(user);
+  const Sender = new Email({ email: user.email, name: user.name });
+  await Sender.sendVerificationEmail(user.verifyToken);
+  res.status(200).json({
+    status: 'success',
+  });
+});

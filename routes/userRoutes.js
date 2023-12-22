@@ -35,4 +35,16 @@ router.patch(
   userController.updateUser
 );
 
+router.get(
+  '/me/joined-classroom/:classroomId',
+  classroomController.checkJoinedClassroom
+);
+
+router.post(
+  '/join-classroom/:joinCode',
+  classroomController.joinClassroomByCode
+);
+
+router.get('/send-verification-email', authController.sendVerificationEmail);
+
 module.exports = router;
