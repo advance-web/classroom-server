@@ -10,12 +10,14 @@ const classroomSchema = new mongoose.Schema(
     },
     subject: {
       type: String,
+      required: [true, 'Please enter subject'],
     },
     description: {
       type: String,
     },
     maxStudent: {
       type: Number,
+      required: [true, 'Please enter subject'],
     },
     teacher: {
       type: mongoose.Schema.ObjectId,
