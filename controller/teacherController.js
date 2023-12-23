@@ -5,7 +5,7 @@ const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const Email = require('../utils/email');
 
-exports.meCreateClassroom = (req, res, next) => {
+exports.teacherDoingAction = (req, res, next) => {
   req.body.teacher = req.user.id;
   next();
 };
