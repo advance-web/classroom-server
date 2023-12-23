@@ -12,5 +12,7 @@ router.get(
   classroomController.inviteToClassroom
 );
 router.get('/:id/participants', classroomController.getParticipant);
+router.get('/:id/structureGrade', classroomController.getStructureGrade);
+router.get('/:id/studentGrade', classroomController.getGradeInClassroom);
 
 module.exports = router;
