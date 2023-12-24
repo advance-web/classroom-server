@@ -20,6 +20,7 @@ const authRouter = require('./routes/authRoutes');
 const studentRouter = require('./routes/studentRoutes');
 const teacherRouter = require('./routes/teacherRoutes');
 const classroomRouter = require('./routes/classroomRoutes');
+const structureGradeRouter = require('./routes/structureGradeRoutes');
 
 const app = express();
 
@@ -89,6 +90,7 @@ app.use('/api/users', userRouter);
 app.use('/api/students', studentRouter);
 app.use('/api/teachers', teacherRouter);
 app.use('/api/classroom', classroomRouter);
+app.use('/api/structureGrade', structureGradeRouter);
 app.use('/auth', authRouter);
 
 //Global error handler

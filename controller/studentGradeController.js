@@ -1,4 +1,5 @@
 const studentGradeModel = require('../model/studentGradeModel');
+const structureGradeModel = require('../model/structureGradeModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
@@ -6,6 +7,7 @@ exports.markGrade = catchAsync(async (req, res, next) => {
   // body: studentId, StructureGradeID, grade
   const { id: teacher } = req.user;
   const { student, grade, structureGrade } = req.body;
+  const structureGradeDoc = await structureGradeModel.findById(structureGrade);
   // teacher: req.user
 
   const doc = await studentGradeModel.findOneAndUpdate(
@@ -15,6 +17,7 @@ exports.markGrade = catchAsync(async (req, res, next) => {
       structureGrade,
       teacher,
       grade,
+      classroom: structureGradeDoc.classroom,
     },
     { upsert: true, new: true }
   );
