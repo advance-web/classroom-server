@@ -7,6 +7,7 @@ const AppError = require('../utils/AppError');
 const structureGradeModel = require('../model/structureGradeModel');
 const studentGradeModel = require('../model/studentGradeModel');
 const userModel = require('../model/userModel');
+const gradeReviewModel = require('../model/gradeReviewModel');
 
 exports.inviteToClassroom = catchAsync(async (req, res, next) => {
   const { id: classroom } = req.params;
@@ -177,4 +178,63 @@ exports.getGradeInClassroom = catchAsync(async (req, res, next) => {
     status: 'success',
     data: doc.filter((d) => d.structureGrade !== null),
   });
+});
+
+exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
+  const classroomId = req.params.id;
+  const pipeline = [
+    {
+      $lookup: {
+        from: studentGradeModel.collection.name,
+        localField: 'studentGrade',
+        foreignField: '_id',
+        as: 'currentGrade',
+      },
+    },
+    {
+      $unwind: '$currentGrade',
+    },
+    {
+      $match: {
+        'currentGrade.classroom': mongoose.Types.ObjectId(classroomId),
+      },
+    },
+    {
+      $lookup: {
+        from: structureGradeModel.collection.name,
+        localField: 'currentGrade.structureGrade',
+        foreignField: '_id',
+        as: 'structureGradeInfo',
+      },
+    },
+    {
+      $unwind: '$structureGradeInfo',
+    },
+    {
+      $project: {
+        student: 1,
+        expectationGrade: 1,
+        reason: 1,
+        createdAt: 1,
+        currentGrade: '$currentGrade.grade',
+        structureGrade: {
+          name: '$structureGradeInfo.name',
+          scale: '$structureGradeInfo.scale',
+        },
+        // currentGrade: 'currentGrade.grade',
+        // structureGradeInfo: {
+        //   name: 1,
+        //   scale: 1,
+        // },
+      },
+    },
+  ];
+  if (req.user.role === 'student')
+    pipeline.push({
+      $match: {
+        student: mongoose.Types.ObjectId(req.user.id),
+      },
+    });
+  const doc = await gradeReviewModel.aggregate(pipeline);
+  return res.status(200).json({ doc });
 });
