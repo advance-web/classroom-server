@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const studentGradeModel = require('./studentGradeModel');
 
 const structureGradeSchema = new mongoose.Schema(
   {
@@ -26,5 +27,15 @@ const structureGradeSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+structureGradeSchema.pre('findOneAndDelete', async function (next) {
+  console.log('middleware');
+  const structureGradeId = this.get('_id');
+  const doc = await studentGradeModel.deleteMany({
+    structureGrade: structureGradeId,
+  });
+  console.log(doc);
+  next();
+});
 
 module.exports = mongoose.model('StructureGrade', structureGradeSchema);

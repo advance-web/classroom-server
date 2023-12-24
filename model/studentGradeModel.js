@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const structureGradeModel = require('./structureGradeModel');
 
 const studentGradeSchema = new mongoose.Schema(
   {
@@ -35,11 +34,5 @@ const studentGradeSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-
-studentGradeSchema.pre('findOneAndUpdate', async function (next) {
-  const doc = await structureGradeModel.findById(this.get('structureGrade'));
-  this.set({ classroom: doc.classroom });
-  next();
-});
 
 module.exports = mongoose.model('StudentGrade', studentGradeSchema);
