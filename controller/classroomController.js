@@ -116,39 +116,17 @@ exports.getStructureGrade = catchAsync(async (req, res, next) => {
 });
 
 exports.getGradeInClassroom = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const doc = await studentGradeModel.aggregate([
+  const { id: classroomId } = req.params;
+  const pipeline = [
     {
       $match: {
-        classroom: mongoose.Types.ObjectId(id),
-      },
-    },
-    {
-      $lookup: {
-        from: structureGradeModel.collection.name,
-        localField: 'structureGrade',
-        foreignField: '_id',
-        as: 'structureGradeInfo',
-      },
-    },
-    {
-      $unwind: '$structureGradeInfo',
-    },
-    {
-      $group: {
-        _id: '$student',
-        grades: {
-          $push: {
-            structureGrade: '$structureGradeInfo',
-            grade: '$grade',
-          },
-        },
+        classroom: mongoose.Types.ObjectId(classroomId),
       },
     },
     {
       $lookup: {
         from: userModel.collection.name,
-        localField: '_id',
+        localField: 'user',
         foreignField: '_id',
         as: 'studentInfo',
       },
@@ -157,22 +135,47 @@ exports.getGradeInClassroom = catchAsync(async (req, res, next) => {
       $unwind: '$studentInfo',
     },
     {
-      $project: {
-        studentInfo: {
-          email: 1,
-          name: 1,
-          _id: 1,
-        },
-        _id: 0,
-        'grades.structureGrade': {
-          name: 1,
-          scale: 1,
-          _id: 1,
-        },
-        'grades.grade': 1,
+      $match: {
+        'studentInfo.role': 'student',
       },
     },
-  ]);
+    {
+      $lookup: {
+        from: studentGradeModel.collection.name,
+        pipeline: [
+          {
+            $match: {
+              classroom: mongoose.Types.ObjectId(classroomId),
+            },
+          },
+        ],
+        localField: 'user',
+        foreignField: 'student',
+        as: 'grades',
+      },
+    },
+    {
+      $project: {
+        studentInfo: {
+          _id: 1,
+          name: 1,
+          email: 1,
+        },
+        grades: {
+          structureGrade: 1,
+          grade: 1,
+        },
+        _id: 0,
+      },
+    },
+  ];
+  if (req.user.role === 'student')
+    pipeline.push({
+      $match: {
+        'studentInfo._id': mongoose.Types.ObjectId(req.user.id),
+      },
+    });
+  const doc = await classroomParticipantModel.aggregate(pipeline);
   if (!doc.length) return next(new AppError(400, 'Grade not found'));
   return res.status(200).json({
     status: 'success',
