@@ -44,6 +44,12 @@ exports.getStudentGradeInClassroom = catchAsync(async (req, res, next) => {
   if (!doc.length) return next(new AppError(400, 'Grade not found'));
   return res.status(200).json({
     status: 'success',
-    data: doc,
+    data: {
+      grades: doc,
+      total: doc.reduce(
+        (total, grade) => total + grade.grade * grade.structureGrade.scale,
+        0
+      ),
+    },
   });
 });
