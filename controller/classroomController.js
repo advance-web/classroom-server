@@ -188,6 +188,17 @@ exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
   const pipeline = [
     {
       $lookup: {
+        from: userModel.collection.name,
+        localField: 'student',
+        foreignField: '_id',
+        as: 'studentInfo',
+      },
+    },
+    {
+      $unwind: '$studentInfo',
+    },
+    {
+      $lookup: {
         from: studentGradeModel.collection.name,
         localField: 'studentGrade',
         foreignField: '_id',
@@ -215,7 +226,11 @@ exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
     },
     {
       $project: {
-        student: 1,
+        studentInfo: {
+          name: 1,
+          email: 1,
+          _id: 1,
+        },
         expectationGrade: 1,
         reason: 1,
         createdAt: 1,
@@ -224,20 +239,15 @@ exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
           name: '$structureGradeInfo.name',
           scale: '$structureGradeInfo.scale',
         },
-        // currentGrade: 'currentGrade.grade',
-        // structureGradeInfo: {
-        //   name: 1,
-        //   scale: 1,
-        // },
       },
     },
   ];
   if (req.user.role === 'student')
     pipeline.push({
       $match: {
-        student: mongoose.Types.ObjectId(req.user.id),
+        'studentInfo._id': mongoose.Types.ObjectId(req.user.id),
       },
     });
   const doc = await gradeReviewModel.aggregate(pipeline);
-  return res.status(200).json({ doc });
+  return res.status(200).json({ data: doc });
 });
