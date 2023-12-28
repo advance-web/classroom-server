@@ -3,6 +3,7 @@ const express = require('express');
 const userController = require('../controller/userController');
 const authController = require('../controller/authController');
 const classroomController = require('../controller/classroomController');
+const notificationController = require('../controller/notificationController');
 
 const router = express.Router();
 
@@ -46,5 +47,6 @@ router.post(
 );
 
 router.get('/send-verification-email', authController.sendVerificationEmail);
+router.get('/notifications', notificationController.getUserNotification);
 
 module.exports = router;

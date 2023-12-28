@@ -22,6 +22,7 @@ const teacherRouter = require('./routes/teacherRoutes');
 const classroomRouter = require('./routes/classroomRoutes');
 const structureGradeRouter = require('./routes/structureGradeRoutes');
 const gradeReviewRouter = require('./routes/gradeReviewRoutes');
+const notificationRouter = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -93,6 +94,7 @@ app.use('/api/teachers', teacherRouter);
 app.use('/api/classroom', classroomRouter);
 app.use('/api/structureGrade', structureGradeRouter);
 app.use('/api/gradeReview', gradeReviewRouter);
+app.use('/api/notifications', notificationRouter);
 
 app.use('/auth', authRouter);
 
