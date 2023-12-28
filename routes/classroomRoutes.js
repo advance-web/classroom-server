@@ -2,6 +2,7 @@ const express = require('express');
 
 const classroomController = require('../controller/classroomController');
 const authController = require('../controller/authController');
+const notificationController = require('../controller/notificationController');
 
 const router = express.Router();
 
@@ -24,5 +25,12 @@ router.get(
   '/:id/gradeReview/comments',
   classroomController.getAllGradeReviewInClassroom
 );
+
+router.post(
+  '/:id/broadcast',
+  authController.restrictTo('teacher'),
+  notificationController.notifyAllStudentInClassroom
+);
+router.post('/:id/unicast', notificationController.notifyOtherUserInClassroom);
 
 module.exports = router;
