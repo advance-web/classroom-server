@@ -23,6 +23,7 @@ const classroomRouter = require('./routes/classroomRoutes');
 const structureGradeRouter = require('./routes/structureGradeRoutes');
 const gradeReviewRouter = require('./routes/gradeReviewRoutes');
 const notificationRouter = require('./routes/notificationRoutes');
+const adminRouter = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -40,11 +41,19 @@ if (process.env.NODE_ENV === 'production') console.log('Working in Production');
 //   message: 'Too many request to this ip!! Try again in an hour',
 // });
 //cors
+const whitelist = [
+  process.env.CLIENT_URL,
+  'http://localhost:3001',
+  'http://localhost:5173',
+];
 const corsOrigin = {
-  origin:
-    process.env.NODE_ENV === 'production'
-      ? process.env.CLIENT_URL
-      : 'http://localhost:3001', //or whatever port your frontend is using
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -95,6 +104,7 @@ app.use('/api/classroom', classroomRouter);
 app.use('/api/structureGrade', structureGradeRouter);
 app.use('/api/gradeReview', gradeReviewRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/admin', adminRouter);
 
 app.use('/auth', authRouter);
 
