@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-
+const { promisify } = require('util');
 const User = require('../model/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 const { appConfig } = require('../utils/appConfig');
 const Email = require('../utils/email');
 const passport = require('../utils/passport');
+const adminModel = require('../model/adminModel');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -237,4 +238,48 @@ exports.sendVerificationEmail = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
   });
+});
+
+exports.adminLogin = catchAsync(async (req, res, next) => {
+  const { username, password } = req.body;
+  //Check for email and password
+  if (!username || !password) {
+    return next(new AppError(400, 'Invalid username or password'));
+  }
+  //Check for user and pass
+  const user = await adminModel.findOne({ username }).select('+password');
+  if (!user || !(await user.checkPassword(password, user.password))) {
+    return next(new AppError(401, 'Wrong username or password'));
+  }
+  //send back token
+  createSendUser(user, 200, res);
+});
+
+exports.restrictToAdmin = catchAsync(async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (!token) {
+    return next(
+      new AppError('You are not logged in! Please log in to get access.', 401)
+    );
+  }
+
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  const admin = await adminModel.findById(decoded.id);
+  if (!admin) {
+    return next(new AppError('Admin not exsist', 401));
+  }
+
+  req.admin = admin;
+  next();
 });

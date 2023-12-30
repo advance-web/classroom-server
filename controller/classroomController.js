@@ -251,3 +251,10 @@ exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
   const doc = await gradeReviewModel.aggregate(pipeline);
   return res.status(200).json({ data: doc });
 });
+
+exports.getAllClassroom = catchAsync(async (req, res, next) => {
+  const doc = await classroomModel.find().populate('teacher', 'email name');
+  res.status(200).json({
+    data: doc,
+  });
+});
