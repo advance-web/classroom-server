@@ -2,6 +2,7 @@ const express = require('express');
 
 const authController = require('../controller/authController');
 const adminController = require('../controller/adminController');
+const classroomController = require('../controller/classroomController');
 
 const router = express.Router();
 
@@ -13,5 +14,7 @@ router.get(
   adminController.getMe,
   adminController.getAdmin
 );
+router.get('/classrooms', classroomController.getAllClassroom);
+router.get('/classrooms/:id/participants', classroomController.getParticipant);
 
 module.exports = router;
