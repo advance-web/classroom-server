@@ -20,6 +20,8 @@ router.get(
 );
 
 router.get('/:id', gradeReviewController.getGradeReview);
+router.patch('/:id', gradeReviewController.updateGradeReview);
+
 router.use(authController.protect, authController.restrictTo('student'));
 router.post(
   '/',

@@ -7,6 +7,7 @@ const AppError = require('../utils/AppError');
 
 exports.createGradeReview = factory.createOne(gradeReviewModel);
 exports.getGradeReview = factory.getOne(gradeReviewModel, { path: 'comments' });
+exports.updateGradeReview = factory.updateOne(gradeReviewModel);
 
 exports.studentOwnGrade = catchAsync(async (req, res, next) => {
   const { student, studentGrade } = req.body;

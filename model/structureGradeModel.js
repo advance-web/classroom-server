@@ -21,6 +21,11 @@ const structureGradeSchema = new mongoose.Schema(
       type: Number,
       require: [true, 'Structure grade must have scale'],
     },
+    isFinalize: {
+      type: Boolean,
+      require: true,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
