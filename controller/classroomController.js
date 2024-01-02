@@ -160,6 +160,7 @@ exports.getGradeInClassroom = catchAsync(async (req, res, next) => {
           _id: 1,
           name: 1,
           email: 1,
+          idMapping: 1,
         },
         grades: {
           structureGrade: 1,
