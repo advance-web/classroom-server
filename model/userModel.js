@@ -56,6 +56,10 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'teacher'],
       default: 'student',
     },
+    idMapping: {
+      type: String,
+      unique: true,
+    },
   },
   {
     toJSON: { virtuals: true },
