@@ -3,6 +3,7 @@ const express = require('express');
 const authController = require('../controller/authController');
 const adminController = require('../controller/adminController');
 const classroomController = require('../controller/classroomController');
+const userController = require('../controller/userController');
 
 const router = express.Router();
 
@@ -16,5 +17,7 @@ router.get(
 );
 router.get('/classrooms', classroomController.getAllClassroom);
 router.get('/classrooms/:id/participants', classroomController.getParticipant);
+router.get('/users', userController.getAllUser);
+router.patch('/users/:id', userController.updateUser);
 
 module.exports = router;

@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    isLocked: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },

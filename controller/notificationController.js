@@ -67,12 +67,12 @@ exports.notifyOtherUserInClassroom = catchAsync(async (req, res) => {
 });
 
 exports.getUserNotification = catchAsync(async (req, res) => {
-  console.log(req.user);
   const doc = await notificationModel
     .find({ to: req.user.id })
     .populate({ path: 'from', select: 'email name role' })
     .populate({ path: 'classroom', select: 'name' })
-    .select('-to');
+    .select('-to')
+    .sort('-createdAt');
   res.status(200).json({
     data: doc,
   });
