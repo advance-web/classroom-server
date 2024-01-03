@@ -25,6 +25,9 @@ const gradeReviewSchema = new mongoose.Schema(
       enum: ['ACCEPTED', 'DENIED', 'INREVIEW'],
       default: 'INREVIEW',
     },
+    finalGrade: {
+      type: Number,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -39,12 +42,12 @@ const gradeReviewSchema = new mongoose.Schema(
 gradeReviewSchema.post('findOneAndUpdate', async (doc, next) => {
   if (doc.status === 'ACCEPTED') {
     //Update student grade to expectation grade
-    const studentGrade = await studentGradeModel.findByIdAndUpdate(
+    const data = await studentGradeModel.findByIdAndUpdate(
       doc.studentGrade,
-      { grade: doc.expectationGrade },
+      { grade: doc.finalGrade ? doc.finalGrade : doc.expectationGrade },
       { new: true }
     );
-    console.log(doc, studentGrade);
+    console.log(data);
     return next();
   }
 
