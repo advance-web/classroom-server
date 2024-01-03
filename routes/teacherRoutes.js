@@ -5,6 +5,7 @@ const classroomController = require('../controller/classroomController');
 const teacherController = require('../controller/teacherController');
 const structureGradeController = require('../controller/structureGradeController');
 const studentGradeController = require('../controller/studentGradeController');
+const userController = require('../controller/userController');
 
 const router = express.Router();
 
@@ -25,5 +26,9 @@ router.post(
 );
 
 router.post('/mark-grade', studentGradeController.markGrade);
-
+router.patch(
+  '/id-mapping/:id',
+  userController.mappingId,
+  userController.updateUser
+);
 module.exports = router;

@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+userSchema.index({ idMapping: 1 }, { unique: true });
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -80,7 +81,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.pre('save', async function () {
+userSchema.pre('save', async function (next) {
   if (this.isNew) {
     const invitations = await PendingInviteModel.find({
       email: this.email,
@@ -99,7 +100,9 @@ userSchema.pre('save', async function () {
       );
       await Promise.all([...queries, updatePendingQuery]);
     }
+    return next();
   }
+  return next();
 });
 
 userSchema.methods.checkPassword = async function (checkPass, curPass) {
