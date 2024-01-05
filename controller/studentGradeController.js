@@ -42,14 +42,15 @@ exports.getStudentGradeInClassroom = catchAsync(async (req, res, next) => {
     })
     .select('structureGrade grade');
   if (!doc.length) return next(new AppError(400, 'Grade not found'));
+  const totalGrade = doc.reduce((total, grade) => {
+    if (!grade.structureGrade) return total;
+    return total + grade.grade * grade.structureGrade.scale;
+  }, 0);
   return res.status(200).json({
     status: 'success',
     data: {
       grades: doc,
-      total: doc.reduce(
-        (total, grade) => total + grade.grade * grade.structureGrade.scale,
-        0
-      ),
+      total: totalGrade,
     },
   });
 });

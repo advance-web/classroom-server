@@ -34,10 +34,11 @@ const structureGradeSchema = new mongoose.Schema(
 );
 
 structureGradeSchema.pre('findOneAndDelete', async function (next) {
-  console.log('middleware');
-  const structureGradeId = this.get('_id');
+  const query = this.getQuery();
+  const structureGradeId = query._id;
+  console.log(structureGradeId);
   const doc = await studentGradeModel.deleteMany({
-    structureGrade: structureGradeId,
+    structureGrade: mongoose.Types.ObjectId(structureGradeId),
   });
   console.log(doc);
   next();
