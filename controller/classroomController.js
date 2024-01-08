@@ -263,3 +263,11 @@ exports.getAllClassroom = catchAsync(async (req, res, next) => {
     data: doc,
   });
 });
+
+exports.getClassroomStatus = catchAsync(async (req, res, next) => {
+  const doc = await classroomModel.findById(req.params.id).select('active');
+  if (!doc) return new AppError(400, 'No classroom found');
+  return res.status(200).json({
+    active: doc.active,
+  });
+});

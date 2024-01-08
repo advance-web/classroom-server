@@ -17,6 +17,7 @@ router.use(authController.protect);
 router.get('/:id/participants', classroomController.getParticipant);
 router.get('/:id/structureGrade', classroomController.getStructureGrade);
 router.get('/:id/studentGrade', classroomController.getGradeInClassroom);
+router.get('/:id/status', classroomController.getClassroomStatus);
 router.get(
   '/:id/gradeReview',
   classroomController.getAllGradeReviewInClassroom
