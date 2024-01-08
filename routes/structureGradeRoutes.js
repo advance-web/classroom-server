@@ -8,5 +8,6 @@ const router = express.Router();
 router.use(authController.protect, authController.restrictTo('teacher'));
 router.delete('/:id', structureGradeController.deleteStructureGrade);
 router.patch('/:id', structureGradeController.updateStructureGrade);
+router.patch('/:id/sort', structureGradeController.sortStructureGrade);
 
 module.exports = router;

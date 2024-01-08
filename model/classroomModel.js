@@ -27,6 +27,10 @@ const classroomSchema = new mongoose.Schema(
     joinCode: {
       type: String,
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     toJSON: { virtuals: true },

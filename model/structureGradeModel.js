@@ -26,6 +26,10 @@ const structureGradeSchema = new mongoose.Schema(
       require: true,
       default: false,
     },
+    position: {
+      type: Number,
+      default: 1024,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -33,14 +37,28 @@ const structureGradeSchema = new mongoose.Schema(
   }
 );
 
+structureGradeSchema.pre('save', function (next) {
+  const self = this;
+  this.constructor
+    .find({})
+    .sort({ position: -1 })
+    .limit(1)
+    .exec((err, docs) => {
+      if (docs.length > 0) {
+        self.position = docs[0].position + 1024;
+      } else {
+        self.position = 1024;
+      }
+      next();
+    });
+});
+
 structureGradeSchema.pre('findOneAndDelete', async function (next) {
   const query = this.getQuery();
   const structureGradeId = query._id;
-  console.log(structureGradeId);
-  const doc = await studentGradeModel.deleteMany({
+  await studentGradeModel.deleteMany({
     structureGrade: mongoose.Types.ObjectId(structureGradeId),
   });
-  console.log(doc);
   next();
 });
 

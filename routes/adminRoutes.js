@@ -17,6 +17,7 @@ router.get(
 );
 router.get('/classrooms', classroomController.getAllClassroom);
 router.get('/classrooms/:id/participants', classroomController.getParticipant);
+router.patch('/classrooms/:id', classroomController.updateClassroomById);
 router.get('/users', userController.getAllUser);
 router.patch('/users/:id', userController.updateUser);
 

@@ -25,6 +25,8 @@ exports.inviteToClassroom = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateClassroomById = factory.updateOne(classroomModel);
+
 exports.getClassroomById = factory.getOne(classroomModel, {
   path: 'teacher',
 });
@@ -107,7 +109,9 @@ exports.doingClassroomAction = (req, res, next) => {
 
 exports.getStructureGrade = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const doc = await structureGradeModel.find({ classroom: id });
+  const doc = await structureGradeModel
+    .find({ classroom: id })
+    .sort({ position: 1 });
   if (!doc.length) return next(new AppError(400, 'Structure Grade not found'));
   return res.status(200).json({
     status: 'success',
