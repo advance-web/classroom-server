@@ -239,6 +239,7 @@ exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
         expectationGrade: 1,
         reason: 1,
         createdAt: 1,
+        status: 1,
         currentGrade: '$currentGrade.grade',
         structureGrade: {
           name: '$structureGradeInfo.name',
