@@ -43,6 +43,7 @@ if (process.env.NODE_ENV === 'production') console.log('Working in Production');
 //cors
 const whitelist = [
   process.env.CLIENT_URL,
+  process.env.ADMIN_URL,
   'http://localhost:3001',
   'http://localhost:5173',
 ];
