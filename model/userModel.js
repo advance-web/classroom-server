@@ -58,7 +58,6 @@ const userSchema = new mongoose.Schema(
     },
     idMapping: {
       type: String,
-      unique: true,
     },
     isLocked: {
       type: Boolean,

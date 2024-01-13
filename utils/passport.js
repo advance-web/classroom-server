@@ -2,6 +2,7 @@ const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const PassportJWT = require('passport-jwt');
+const crypto = require('crypto');
 const User = require('../model/userModel');
 const { appConfig } = require('./appConfig');
 
@@ -45,11 +46,13 @@ const googleStrat = new GoogleStrategy(
           name: displayName,
           email: emails[0].value,
           verify: true,
+          verifyToken: crypto.randomBytes(128).toString('hex'),
           provider: 'google',
         });
 
         done(null, newUser);
       } catch (err) {
+        console.log(err);
         return done(null, false, { message: 'Error' });
       }
     });

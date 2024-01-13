@@ -206,6 +206,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.googleLogin = (req, res, next) => {
   const { user } = req;
+  console.log(user);
 
   if (!user) {
     return res.redirect(`${appConfig.CLIENT_URL}/sign-in`);
