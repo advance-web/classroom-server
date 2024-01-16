@@ -20,5 +20,10 @@ router.get('/classrooms/:id/participants', classroomController.getParticipant);
 router.patch('/classrooms/:id', classroomController.updateClassroomById);
 router.get('/users', userController.getAllUser);
 router.patch('/users/:id', userController.updateUser);
+router.patch(
+  '/id-mapping/:id',
+  userController.mappingId,
+  userController.updateUser
+);
 
 module.exports = router;
