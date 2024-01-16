@@ -36,6 +36,14 @@ router.patch(
   userController.updateUser
 );
 
+router.patch(
+  '/me/idMapping',
+  authController.protect,
+  userController.getMe,
+  userController.mappingId,
+  userController.updateUser
+);
+
 router.get(
   '/me/joined-classroom/:classroomId',
   classroomController.checkJoinedClassroom

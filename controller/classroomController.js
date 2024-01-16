@@ -234,6 +234,7 @@ exports.getAllGradeReviewInClassroom = catchAsync(async (req, res, next) => {
         studentInfo: {
           name: 1,
           email: 1,
+          idMapping: 1,
           _id: 1,
         },
         expectationGrade: 1,
